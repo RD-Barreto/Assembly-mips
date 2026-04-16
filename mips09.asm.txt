@@ -1,0 +1,57 @@
+.data
+    prompt1: .asciiz "Digite o primeiro numero (dividendo): "
+    prompt2: .asciiz "Digite o segundo numero (divisor - nao pode ser 0): "
+    erro_msg: .asciiz "Erro: O divisor nao pode ser zero!\n"
+    res_msg:  .asciiz "O resultado da divisao e: "
+
+.text
+.globl main
+
+main:
+    # --- Leitura do 1º Número ---
+    li $v0, 4
+    la $a0, prompt1
+    syscall
+    
+    li $v0, 5
+    syscall
+    move $t0, $v0           # $t0 = Numerador
+
+leitura_divisor:
+    # --- Leitura do 2º Número ---
+    li $v0, 4
+    la $a0, prompt2
+    syscall
+    
+    li $v0, 5
+    syscall
+    move $t1, $v0           # $t1 = Divisor
+
+    # --- Validação: O divisor é zero? ---
+    # Se $t1 == 0, pula para a etiqueta de erro
+    beq $t1, $zero, mostrar_erro
+    
+    # Se não for zero, segue para a divisão
+    div $t0, $t1
+    mflo $t2                # Move o quociente para $t2
+
+    # --- Exibir Resultado ---
+    li $v0, 4
+    la $a0, res_msg
+    syscall
+    
+    move $a0, $t2
+    li $v0, 1
+    syscall
+
+    # Encerrar Programa
+    li $v0, 10
+    syscall
+
+mostrar_erro:
+    # --- Mensagem de erro e volta para a leitura ---
+    li $v0, 4
+    la $a0, erro_msg
+    syscall
+    
+    j leitura_divisor       # Salto incondicional de volta para ler o 2º número novamente

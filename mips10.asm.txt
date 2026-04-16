@@ -1,0 +1,59 @@
+.data
+    prompt1: .asciiz "Digite o primeiro valor: "
+    prompt2: .asciiz "Digite o segundo valor: "
+    res_msg: .asciiz "O resto da divisao do maior pelo menor e: "
+
+.text
+.globl main
+
+main:
+    # --- Leitura dos valores ---
+    li $v0, 4
+    la $a0, prompt1
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0       # $t0 = A
+
+    li $v0, 4
+    la $a0, prompt2
+    syscall
+    li $v0, 5
+    syscall
+    move $t1, $v0       # $t1 = B
+
+    # --- Garantir que $t0 seja o MAIOR e $t1 o MENOR ---
+    # Se $t0 >= $t1, pula a troca
+    bge $t0, $t1, calcular
+    
+    # Troca de valores (Swap) usando registrador temporário
+    move $t2, $t0       # temp = A
+    move $t0, $t1       # A = B
+    move $t1, $t2       # B = temp
+
+calcular:
+    # --- Cálculo do Resto usando DIV, MUL e SUB ---
+    
+    # 1. DIV: Quociente = Maior / Menor
+    div $t0, $t1        
+    mflo $t3            # $t3 recebe o Quociente (LO)
+    
+    # 2. MUL: Produto = Menor * Quociente
+    mul $t4, $t1, $t3   # $t4 = $t1 * $t3
+    
+    # 3. SUB: Resto = Maior - Produto
+    sub $t5, $t0, $t4   # $t5 = $t0 - $t4 (Este é o nosso resto!)
+
+exibir:
+    # --- Mostrar o resultado ---
+    li $v0, 4
+    la $a0, res_msg
+    syscall
+    
+    move $a0, $t5
+    li $v0, 1
+    syscall
+
+    # Encerrar
+    li $v0, 10
+    syscall

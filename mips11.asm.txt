@@ -1,0 +1,113 @@
+#Mapeamento de Registradores
+#$s0: Contador para [0-25]
+#$s1: Contador para [26-50]
+#$s2: Contador para [51-75]
+#$s3: Contador para [76-100]
+#$t0: Armazena o número lido no momento
+
+.data
+    prompt:     .asciiz "Digite um numero (negativo para sair): "
+    msg_0_25:   .asciiz "\n[0-25]: "
+    msg_26_50:  .asciiz "\n[26-50]: "
+    msg_51_75:  .asciiz "\n[51-75]: "
+    msg_76_100: .asciiz "\n[76-100]: "
+
+.text
+.globl main
+
+main:
+    # Inicializa contadores com 0
+    li $s0, 0
+    li $s1, 0
+    li $s2, 0
+    li $s3, 0
+
+loop:
+    # Solicita e lê o número
+    li $v0, 4
+    la $a0, prompt
+    syscall
+    
+    li $v0, 5
+    syscall
+    move $t0, $v0       # $t0 = número digitado
+
+    # Condição de saída: se número < 0, vai para o fim
+    bltz $t0, fim_loop
+
+    # Verificação dos intervalos
+    # Testar [0-25]
+    li $t1, 25
+    ble $t0, $t1, inc_0_25  # Se num <= 25 (e sabemos que é >= 0)
+
+    # Testar [26-50]
+    li $t1, 50
+    ble $t0, $t1, inc_26_50 # Se num <= 50
+
+    # Testar [51-75]
+    li $t1, 75
+    ble $t0, $t1, inc_51_75 # Se num <= 75
+
+    # Testar [76-100]
+    li $t1, 100
+    ble $t0, $t1, inc_76_100 # Se num <= 100
+
+    # Se for maior que 100, apenas volta para o loop
+    j loop
+
+inc_0_25:
+    # Verifica se não é negativo (redundância de segurança)
+    bltz $t0, loop
+    addi $s0, $s0, 1
+    j loop
+
+inc_26_50:
+    addi $s1, $s1, 1
+    j loop
+
+inc_51_75:
+    addi $s2, $s2, 1
+    j loop
+
+inc_76_100:
+    addi $s3, $s3, 1
+    j loop
+
+fim_loop:
+    # --- Exibição dos Resultados ---
+    
+    # [0-25]
+    li $v0, 4
+    la $a0, msg_0_25
+    syscall
+    li $v0, 1
+    move $a0, $s0
+    syscall
+
+    # [26-50]
+    li $v0, 4
+    la $a0, msg_26_50
+    syscall
+    li $v0, 1
+    move $a0, $s1
+    syscall
+
+    # [51-75]
+    li $v0, 4
+    la $a0, msg_51_75
+    syscall
+    li $v0, 1
+    move $a0, $s2
+    syscall
+
+    # [76-100]
+    li $v0, 4
+    la $a0, msg_76_100
+    syscall
+    li $v0, 1
+    move $a0, $s3
+    syscall
+
+    # Finalizar
+    li $v0, 10
+    syscall
