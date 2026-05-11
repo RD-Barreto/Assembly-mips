@@ -1,45 +1,42 @@
 .data
-    prompt:      .asciiz "\nDigite a altura da pessoa (em cm): "
-    msg_maior:   .asciiz "\nMaior altura: "
-    msg_menor:   .asciiz "\nMenor altura: "
+    mens:      .asciiz "\nDigite a altura da pessoa (em cm): "
+    maior:   .asciiz "\nMaior altura: "
+    menor:   .asciiz "\nMenor altura: "
 
 .text
 .globl main
 
 main:
-    # --- Inicialização ---
+    
     li $s0, 15          # Contador de pessoas (15 para 1)
-    li $s1, 0           # $s1 armazenará a MAIOR altura (começa em 0)
-    li $s2, 999         # $s2 armazenará a MENOR altura (começa com valor alto)
+    li $s1, 0           # $s1 armazenarÃ¡ a MAIOR altura (comeÃ§a em 0)
+    li $s2, 999         # $s2 armazenarÃ¡ a MENOR altura (comeÃ§a com valor alto)
 
 loop:
-    # 1. Solicitar e ler a altura
+    
     li $v0, 4
     la $a0, prompt
     syscall
     
-    li $v0, 5           # Lê inteiro
+    li $v0, 5           
     syscall
-    move $t0, $v0       # $t0 = altura lida
+    move $t0, $v0       
 
-    # 2. Verificar se é a MAIOR altura
-    # Se altura lida ($t0) > maior atual ($s1), atualiza maior
+    
     ble $t0, $s1, verifica_menor
     move $s1, $t0       # Nova maior altura encontrada
 
 verifica_menor:
-    # 3. Verificar se é a MENOR altura
-    # Se altura lida ($t0) < menor atual ($s2), atualiza menor
+    
     bge $t0, $s2, proximo
-    move $s2, $t0       # Nova menor altura encontrada
-
+    move $s2, $t0       
 proximo:
-    # 4. Controle do Loop
-    addi $s0, $s0, -1   # Decrementa o contador
-    bnez $s0, loop      # Se contador != 0, volta para o loop
+    
+    addi $s0, $s0, -1   
+    bnez $s0, loop      
 
 exibir_resultados:
-    # --- Mostrar Maior ---
+    
     li $v0, 4
     la $a0, msg_maior
     syscall
@@ -47,7 +44,7 @@ exibir_resultados:
     li $v0, 1
     syscall
 
-    # --- Mostrar Menor ---
+    
     li $v0, 4
     la $a0, msg_menor
     syscall
@@ -55,6 +52,6 @@ exibir_resultados:
     li $v0, 1
     syscall
 
-    # Finalizar
+    
     li $v0, 10
     syscall
